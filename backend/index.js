@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Root Entry
 app.get("/", (req, res) => {
-  res.send("Welcome to ChatApp");
+  res.send("Welcome to the ChatApp");
 });
 
 // Listened to the PORT
