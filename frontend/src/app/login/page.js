@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import axios from "axios";
 
 export default function Page() {
   // ---------------------------------------- States Start Here ----------------------------------------
@@ -13,13 +14,21 @@ export default function Page() {
    * @param {*} event
    * @returns {void}
    */
-  const SignIn = (event) => {
-    event.preventDefault();
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-    };
-    console.log("Sign In", payload);
+  const SignIn = async (event) => {
+    try {
+      event.preventDefault();
+      const payload = {
+        email: formData.email,
+        password: formData.password,
+      };
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/login`,
+        payload
+      );
+      console.log("Sign In", response);
+    } catch (error) {
+      console.error("Sign In", error);
+    }
   };
 
   /**

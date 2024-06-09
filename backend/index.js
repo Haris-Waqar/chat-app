@@ -1,20 +1,28 @@
 const express = require("express");
+
+const cors = require("cors");
 const dotenv = require("dotenv");
 const { connectDb } = require("./config/database");
-const authRoutes = require("./routes/authRoutes");
+const { readdirSync } = require("fs");
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Iinitialized Database Configuration
+// Middlewares
+app.use(cors()); // Cross-Origin Resource Sharing
+app.use(express.json()); // this use function that is available with express to parse json data. when we send data from client to server, we send data in json format so we need to parse it.
+
+// Initialized Database Configuration
 connectDb();
 
-app.use(express.json());
+// Port
+const PORT = process.env.PORT || 8000;
 
-// Use routes
-app.use("/api/v1/auth", authRoutes);
+// ****Setting up routes****
+readdirSync("./routes").map((r) =>
+  app.use("/api/v1", require(`./routes/${r}`))
+);
 
 // Root Entry
 app.get("/", (req, res) => {

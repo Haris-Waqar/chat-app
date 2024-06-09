@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import axios from "axios";
 import Link from "next/link";
 
 export default function Page() {
@@ -17,14 +18,22 @@ export default function Page() {
    * @param {*} event
    * @returns {void}
    */
-  const SignUp = (event) => {
-    event.preventDefault();
-    const payload = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    };
-    console.log("Sign In", payload);
+  const SignUp = async (event) => {
+    try {
+      event.preventDefault();
+      const payload = {
+        username: formData.name,
+        email: formData.email,
+        password: formData.password,
+      };
+      const response = await axios.post(
+        `http://localhost:8000/api/v1/register`,
+        payload
+      );
+      console.log("Sign In", response);
+    } catch (error) {
+      console.error("Sign In", error);
+    }
   };
 
   /**
