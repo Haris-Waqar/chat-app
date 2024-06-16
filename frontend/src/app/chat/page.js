@@ -19,12 +19,17 @@ const drawerWidth = 300;
 export default function PermanentDrawerLeft() {
   return (
     <>
-      {/* <Container sx={{ height: "100%", width: "100%", mx: 1, pl: 0 }} > */}
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "10% 30% 1fr",
-          gridTemplateRows: "10% 30% 1fr",
+          gridTemplateColumns: {
+            xs: "1fr", // 100% width for mobile devices
+            sm: "10% 30% 1fr", // Default layout for larger devices
+          },
+          gridTemplateRows: {
+            xs: "repeat(5, auto)", // Auto height for each item in mobile view
+            sm: "10% 30% 1fr", // Default layout for larger devices
+          },
           gap: 3,
           height: "100%",
           p: 3,
@@ -34,8 +39,14 @@ export default function PermanentDrawerLeft() {
         <Paper
           elevation={3}
           sx={{
-            gridColumn: "1",
-            gridRow: "1 / 4",
+            gridColumn: {
+              xs: "1", // Full width in mobile view
+              sm: "1",
+            },
+            gridRow: {
+              xs: "1", // First item in mobile view
+              sm: "1 / 4",
+            },
             borderRadius: "16px",
             p: 2,
           }}
@@ -46,8 +57,14 @@ export default function PermanentDrawerLeft() {
         <Paper
           elevation={3}
           sx={{
-            gridColumn: "2",
-            gridRow: "1 / 2",
+            gridColumn: {
+              xs: "1", // Full width in mobile view
+              sm: "2",
+            },
+            gridRow: {
+              xs: "2", // Second item in mobile view
+              sm: "1 / 2",
+            },
             borderRadius: "16px",
             p: 2,
           }}
@@ -58,8 +75,14 @@ export default function PermanentDrawerLeft() {
         <Paper
           elevation={3}
           sx={{
-            gridColumn: "2",
-            gridRow: "2/ 3",
+            gridColumn: {
+              xs: "1", // Full width in mobile view
+              sm: "2",
+            },
+            gridRow: {
+              xs: "3", // Third item in mobile view
+              sm: "2 / 3",
+            },
             borderRadius: "16px",
             p: 2,
           }}
@@ -70,8 +93,14 @@ export default function PermanentDrawerLeft() {
         <Paper
           elevation={3}
           sx={{
-            gridColumn: "2",
-            gridRow: "3/ 4",
+            gridColumn: {
+              xs: "1", // Full width in mobile view
+              sm: "2",
+            },
+            gridRow: {
+              xs: "4", // Fourth item in mobile view
+              sm: "3 / 4",
+            },
             borderRadius: "16px",
             p: 2,
           }}
@@ -82,8 +111,14 @@ export default function PermanentDrawerLeft() {
         <Paper
           elevation={3}
           sx={{
-            gridColumn: "3",
-            gridRow: "1/ 4",
+            gridColumn: {
+              xs: "1", // Full width in mobile view
+              sm: "3",
+            },
+            gridRow: {
+              xs: "5", // Fifth item in mobile view
+              sm: "1 / 4",
+            },
             borderRadius: "16px",
             p: 2,
           }}
@@ -91,7 +126,6 @@ export default function PermanentDrawerLeft() {
           hello
         </Paper>
       </Box>
-      {/* </Container> */}
     </>
   );
 }
