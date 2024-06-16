@@ -2,6 +2,8 @@
 import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { root } from "postcss";
 
 export default function Page() {
   // ---------------------------------------- States Start Here ----------------------------------------
@@ -10,6 +12,7 @@ export default function Page() {
     email: "",
     password: "",
   });
+  const router = useRouter(); // Initialize useRouter
   // ---------------------------------------- States End Here ----------------------------------------
 
   // ----------------------------------------  Methods Start Here ----------------------------------------------
@@ -30,6 +33,7 @@ export default function Page() {
         `${process.env.NEXT_PUBLIC_API_URL}/register`,
         payload
       );
+      router.push("/login");
       console.log("Sign In", response);
     } catch (error) {
       console.error("Sign In", error);

@@ -2,10 +2,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   // ---------------------------------------- States Start Here ----------------------------------------
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const router = useRouter(); // Initialize useRouter
   // ---------------------------------------- States End Here ----------------------------------------
 
   // ----------------------------------------  Methods Start Here ----------------------------------------------
@@ -25,7 +27,9 @@ export default function Page() {
         `${process.env.NEXT_PUBLIC_API_URL}/login`,
         payload
       );
+      //   route to chat page
       console.log("Sign In", response);
+      router.push("/chat");
     } catch (error) {
       console.error("Sign In", error);
     }
