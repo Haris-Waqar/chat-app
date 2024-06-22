@@ -18,7 +18,9 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href={inter.url} />
       </Head>
-      <body className={`h-full ${inter.className}`}>{children}</body>
+      <body className={`h-full ${inter.className}`}>
+        <main>{children}</main>
+      </body>
     </html>
   );
 }

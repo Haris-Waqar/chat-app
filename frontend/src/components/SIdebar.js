@@ -3,10 +3,11 @@ import Box from "@mui/material/Box";
 
 import Avatar from "@mui/material/Avatar";
 import Image from "next/image";
-import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
+  const router = useRouter();
   return (
     <>
       <Paper
@@ -25,11 +26,22 @@ export default function Sidebar() {
           bgcolor: "#6E00FF",
         }}
       >
-        <Avatar
-          sx={{ bgcolor: "text.primary" }}
-          alt="Remy Sharp"
-          src="https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Avatar
+            sx={{
+              bgcolor: "text.primary",
+            }}
+            alt="Avatar"
+            src="https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png"
+          />
+        </Box>
 
         <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
           <Box
@@ -39,9 +51,10 @@ export default function Sidebar() {
               alignItems: "center",
               width: "100%",
               height: "100%",
+              cursor: "pointer",
             }}
             onClick={() => {
-              alert("clicked");
+              router.push("/dashboard/home");
             }}
           >
             <Image src="/home.png" width={30} height={42} alt="home icon" />
