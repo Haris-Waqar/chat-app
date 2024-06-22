@@ -1,6 +1,7 @@
 "use client";
 
 import Box from "@mui/material/Box";
+import Sidebar from "../components/SIdebar.js";
 import Drawer from "@mui/material/Drawer";
 
 import List from "@mui/material/List";
@@ -14,8 +15,6 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import { Container, Paper } from "@mui/material";
 
-const drawerWidth = 300;
-
 export default function PermanentDrawerLeft() {
   return (
     <>
@@ -24,7 +23,7 @@ export default function PermanentDrawerLeft() {
           display: "grid",
           gridTemplateColumns: {
             xs: "1fr", // 100% width for mobile devices
-            sm: "10% 30% 1fr", // Default layout for larger devices
+            sm: "5% 30% 1fr", // Default layout for larger devices
           },
           gridTemplateRows: {
             xs: "repeat(5, auto)", // Auto height for each item in mobile view
@@ -35,24 +34,7 @@ export default function PermanentDrawerLeft() {
           p: 3,
         }}
       >
-        {/* The side bar */}
-        <Paper
-          elevation={3}
-          sx={{
-            gridColumn: {
-              xs: "1", // Full width in mobile view
-              sm: "1",
-            },
-            gridRow: {
-              xs: "1", // First item in mobile view
-              sm: "1 / 4",
-            },
-            borderRadius: "16px",
-            p: 2,
-          }}
-        >
-          hello
-        </Paper>
+        <Sidebar />
         {/* Search Bar */}
         <Paper
           elevation={3}
