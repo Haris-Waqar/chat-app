@@ -29,7 +29,7 @@ export default function Page() {
       );
       //   route to chat page
       console.log("Sign In", response);
-      router.push("/chat");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Sign In", error);
     }
