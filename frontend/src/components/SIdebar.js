@@ -77,7 +77,7 @@ export default function Sidebar() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            height: "calc(100% - 30px)",
+            height: "calc(100% - 50px)",
           }}
         >
           <Stack direction="column" spacing={2} sx={{ mt: 2 }}>

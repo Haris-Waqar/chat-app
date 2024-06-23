@@ -1,3 +1,4 @@
+import ChatArea from "@/components/ChatArea.js";
 import { Paper } from "@mui/material";
 
 export default function MainChatPage() {
@@ -73,7 +74,7 @@ export default function MainChatPage() {
           p: 2,
         }}
       >
-        hello
+        <ChatArea />
       </Paper>
     </>
   );
