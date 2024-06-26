@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     socket.emit("message", {
       sender: "bot",
       message: "Thank you. Please wait for a moment",
-      time: "10:07 AM",
+      time: new Date().toLocaleTimeString(),
     });
   });
 
