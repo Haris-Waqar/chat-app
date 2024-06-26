@@ -1,9 +1,10 @@
 const express = require("express");
-
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { connectDb } = require("./config/database");
 const { readdirSync } = require("fs");
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
 
 dotenv.config();
 
@@ -29,7 +30,32 @@ app.get("/", (req, res) => {
   res.send("Welcome to the ChatApp");
 });
 
-// Listened to the PORT
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const server = createServer(app);
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  socket.removeAllListeners();
+  console.log("a user connected");
+
+  socket.on("sendMessage", (msgObj) => {
+    console.log("message:", msgObj.name + msgObj.message);
+    socket.emit("message", {
+      sender: "bot",
+      message: "Thank you. Please wait for a moment",
+      time: "10:07 AM",
+    });
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Socket ${socket.id} disconnected`);
+  });
 });
+
+server.listen(3000, () => {
+  console.log("server running at http://localhost:3000");
+});
+
+// Listened to the PORT
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
