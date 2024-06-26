@@ -122,7 +122,7 @@ export default function MessagingArea() {
           <Stack
             key={index}
             direction="column"
-            alignItems={msg.sender === "user" ? "flex-start" : "flex-end"}
+            alignItems={msg.sender === "user" ? "flex-end" : "flex-start"}
             spacing={1}
             mb={2}
           >
