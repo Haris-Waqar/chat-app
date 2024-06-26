@@ -19,6 +19,7 @@ export default function MessagingArea() {
 
       setMessages((messages) => [...messages, message]);
     });
+    return () => socket.off("message");
   }, []);
 
   const handleSubmit = (event) => {
