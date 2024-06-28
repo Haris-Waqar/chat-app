@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Head from "next/head";
 import { AuthProvider } from "@/contexts/AuthContext";
+import StoreProvider from "@/app/StoreProvider.js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,18 +13,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <AuthProvider>
-      <html lang="en" className="h-full ">
-        <Head>
-          <title>{metadata.title}</title>
-          <meta name="description" content={metadata.description} />
-          <link rel="icon" href="/favicon.ico" />
-          <link rel="stylesheet" href={inter.url} />
-        </Head>
-        <body className={`h-full ${inter.className}`}>
-          <main>{children}</main>
-        </body>
-      </html>
-    </AuthProvider>
+    <StoreProvider>
+      <AuthProvider>
+        <html lang="en" className="h-full ">
+          <Head>
+            <title>{metadata.title}</title>
+            <meta name="description" content={metadata.description} />
+            <link rel="icon" href="/favicon.ico" />
+            <link rel="stylesheet" href={inter.url} />
+          </Head>
+          <body className={`h-full ${inter.className}`}>
+            <main>{children}</main>
+          </body>
+        </html>
+      </AuthProvider>
+    </StoreProvider>
   );
 }
