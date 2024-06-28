@@ -15,7 +15,7 @@ export default function MessagingArea() {
   const { user } = useAuth();
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
+    const newSocket = io("http://localhost:8000");
     setSocket(newSocket);
     return () => newSocket.disconnect();
   }, [user]);
@@ -55,14 +55,14 @@ export default function MessagingArea() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
     if (name && message) {
       if (socket && user?._id) {
+        console.log("sendMessage emit works", socket, user?._id);
         let receiverId = "";
-        if (user._id == "667e16bdbe3f9a45e0212317") {
-          receiverId = "667dcf2a8b63513072be61c0";
+        if (user._id == "667efba8c6ef396531d0f6e2") {
+          receiverId = "667efbc4c6ef396531d0f6e5";
         } else {
-          receiverId = "667e16bdbe3f9a45e0212317";
+          receiverId = "667efba8c6ef396531d0f6e2";
         }
         socket.emit("sendMessage", { message, receiverId });
         setMessages((messages) => [

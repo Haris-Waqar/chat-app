@@ -13,7 +13,7 @@ const register = async (req, res) => {
     }
 
     // Check If User Exists In The Database
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User Already Exists" });
     }
