@@ -3,11 +3,13 @@ import { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
   // ---------------------------------------- States Start Here ----------------------------------------
   const [formData, setFormData] = useState({ email: "", password: "" });
   const router = useRouter(); // Initialize useRouter
+  const { user, login, logout } = useAuth();
   // ---------------------------------------- States End Here ----------------------------------------
 
   // ----------------------------------------  Methods Start Here ----------------------------------------------
@@ -28,7 +30,13 @@ export default function Page() {
         payload
       );
       //   route to chat page
-      console.log("Sign In", response);
+      // console.log("Sign In Response", response);
+      // Extract user data from response
+      const data = response.data.data;
+      console.log("User Data", data);
+      // Set user data using login function
+      login(data);
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Sign In", error);

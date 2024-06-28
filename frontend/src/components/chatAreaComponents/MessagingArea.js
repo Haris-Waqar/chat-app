@@ -5,31 +5,77 @@ import React, { useState, useEffect } from "react";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import io from "socket.io-client";
-
-const socket = io("http://localhost:3000");
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function MessagingArea() {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    socket.on("message", (message) => {
-      console.log("from bot===>>", message);
+    const newSocket = io("http://localhost:3000");
+    setSocket(newSocket);
+    return () => newSocket.disconnect();
+  }, [user]);
 
-      setMessages((messages) => [...messages, message]);
+  useEffect(() => {
+    console.log("I am here", user);
+    if (socket && user?._id) {
+      console.log("AddNewUser emit works", user?._id);
+      socket.emit("addNewUser", user._id);
+    }
+  }, [socket]);
+
+  // useEffect(() => {
+  //   socket.on("message", (message) => {
+  //     console.log("from bot===>>", message);
+
+  //     setMessages((messages) => [...messages, message]);
+  //   });
+  //   return () => socket.off("message");
+  // }, []);
+
+  // send message emit
+  useEffect(() => {
+    socket?.on("getMessage", (msgObj) => {
+      console.log("from bot===>>", msgObj);
+      setMessages((messages) => [
+        ...messages,
+        {
+          sender: "bot",
+          message: msgObj.message,
+          time: new Date().toLocaleTimeString(),
+        },
+      ]);
     });
-    return () => socket.off("message");
-  }, []);
+    return () => socket?.off("getMessage");
+  }, [socket]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
     if (name && message) {
-      socket.emit("sendMessage", { name, message });
-      setMessages((messages) => [
-        ...messages,
-        { sender: "user", message, time: new Date().toLocaleTimeString() },
-      ]);
+      if (socket && user?._id) {
+        let receiverId = "";
+        if (user._id == "667e16bdbe3f9a45e0212317") {
+          receiverId = "667dcf2a8b63513072be61c0";
+        } else {
+          receiverId = "667e16bdbe3f9a45e0212317";
+        }
+        socket.emit("sendMessage", { message, receiverId });
+        setMessages((messages) => [
+          ...messages,
+          { sender: "user", message, time: new Date().toLocaleTimeString() },
+        ]);
+      }
+
+      // socket.emit("sendMessage", { name, message, to: "7E8-vLy-oQMwcAE3AAAQ" });
+      // setMessages((messages) => [
+      //   ...messages,
+      //   { sender: "user", message, time: new Date().toLocaleTimeString() },
+      // ]);
       setName("");
       setMessage("");
     }
