@@ -8,6 +8,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { Search } from "@mui/icons-material";
 import { Typography } from "@mui/material";
 
+import ChatUsers from "@/components/chatListComponents/ChatUsers.js";
+
 export default function ChatsList() {
   return (
     <Paper
@@ -35,7 +37,6 @@ export default function ChatsList() {
       >
         Chats
       </Typography>
-
       {/* Seacrh Bar */}
       <TextField
         id="input-with-icon-textfield"
@@ -56,6 +57,7 @@ export default function ChatsList() {
           ),
         }}
       />
+      <ChatUsers />
     </Paper>
   );
 }
