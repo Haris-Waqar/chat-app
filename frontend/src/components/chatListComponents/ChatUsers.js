@@ -1,12 +1,22 @@
 "use client";
+import { useEffect, useState } from "react";
+
+import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
+import { setUsers, setSelectedUser } from "@/store/slices/UserSlice.js";
+import { useAuth } from "@/contexts/AuthContext";
 
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
-import { useState, useEffect } from "react";
+import Divider from "@mui/material/Divider";
+
 import axios from "axios";
 
-export default function ChatUsers() {
-  const [users, setUsers] = useState([]);
+export default function ChatUsers(props) {
+  const users = useAppSelector((state) => state.user.users);
+  const dispatch = useAppDispatch();
+  const { user } = useAuth();
+  console.log("socket status from chat user component ::", props.socket);
+
   useEffect(() => {
     // fetch all users and set the state
     const fetchUsers = async () => {
@@ -14,7 +24,7 @@ export default function ChatUsers() {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/getAllUsers`
         );
-        setUsers(res.data.users); // Assuming the response has a 'users' property
+        dispatch(setUsers(res.data.users));
       } catch (error) {
         console.log(error);
       }
@@ -22,54 +32,59 @@ export default function ChatUsers() {
     fetchUsers();
   }, []); // The dependency array is empty to avoid re-fetching on every render
 
-  console.log("users", users);
+  const openChat = (user) => {
+    // Open chat with the user
+    dispatch(setSelectedUser(user));
+  };
+
+  //   Filter users to exclude the user
+  const filteredUsers = users?.filter((userObj) => {
+    return userObj._id != user._id;
+  });
 
   return (
     <>
-      {users &&
-        users.map((userObj) => (
-          <Box
-            key={userObj.id}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              p: 1,
-              borderRadius: "8px",
-              "&:hover": {
-                bgcolor: "#f5f5f5",
-                cursor: "pointer",
-              },
-            }}
-          >
-            <Avatar
-              alt={userObj.username}
-              src={userObj.profilePicture}
-              sx={{ width: 40, height: 40 }}
-            />
+      {filteredUsers &&
+        filteredUsers.map((userObj) => (
+          <Box key={userObj._id} onClick={() => openChat(userObj)}>
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                ml: 1,
+                alignItems: "center",
+                justifyContent: "space-between",
+                p: 1,
+                borderRadius: "8px",
+                "&:hover": {
+                  bgcolor: "#f5f5f5",
+                  cursor: "pointer",
+                },
+                mt: 1,
               }}
             >
+              {/* Avatar and Name */}
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  width: "100%",
+                  alignItems: "center",
                 }}
               >
+                <Avatar
+                  alt={userObj.username}
+                  src={userObj.profilePicture}
+                  sx={{ width: 40, height: 40 }}
+                />
                 <Box
                   sx={{
-                    display: "flex",
-                    flexDirection: "column",
+                    ml: 1,
+                    textTransform: "capitalize",
+                    fontWeight: "600",
                   }}
                 >
                   <h4>{userObj.username}</h4>
                 </Box>
               </Box>
             </Box>
+            <Divider orientation="horizontal" />
           </Box>
         ))}
     </>

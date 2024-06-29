@@ -1,9 +1,13 @@
+"use client";
+import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
 import { Box } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Image from "next/image";
 import Divider from "@mui/material/Divider";
 
 export default function ChatHeader() {
+  const selectedUser = useAppSelector((state) => state.user.selectedUser);
+
   const chatHeaderMenu = [
     {
       icon: "/phone.svg",
@@ -44,7 +48,7 @@ export default function ChatHeader() {
             src="https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png"
           />
           <Box>
-            <Box>John</Box>
+            <Box>{selectedUser?.username}</Box>
             <Box>
               <span>Online -Last Seen, 2:02 pm</span>
             </Box>

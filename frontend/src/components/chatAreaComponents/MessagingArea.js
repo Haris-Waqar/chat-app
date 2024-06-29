@@ -4,42 +4,21 @@ import { Box } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
-import io from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
 
-export default function MessagingArea() {
+export default function MessagingArea(props) {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [socket, setSocket] = useState(null);
   const { user } = useAuth();
+  const selectedUser = useAppSelector((state) => state.user.selectedUser);
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:8000");
-    setSocket(newSocket);
-    return () => newSocket.disconnect();
-  }, [user]);
-
-  useEffect(() => {
-    console.log("I am here", user);
-    if (socket && user?._id) {
-      console.log("AddNewUser emit works", user?._id);
-      socket.emit("addNewUser", user._id);
-    }
-  }, [socket]);
-
-  // useEffect(() => {
-  //   socket.on("message", (message) => {
-  //     console.log("from bot===>>", message);
-
-  //     setMessages((messages) => [...messages, message]);
-  //   });
-  //   return () => socket.off("message");
-  // }, []);
-
+  console.log("socket status from messaging area ::", props.socket);
   // send message emit
   useEffect(() => {
-    socket?.on("getMessage", (msgObj) => {
+    console.log("props.socket", props.socket);
+    props.socket?.on("getMessage", (msgObj) => {
       console.log("from bot===>>", msgObj);
       setMessages((messages) => [
         ...messages,
@@ -50,28 +29,31 @@ export default function MessagingArea() {
         },
       ]);
     });
-    return () => socket?.off("getMessage");
-  }, [socket]);
+    return () => props.socket?.off("getMessage");
+  }, [props.socket]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (name && message) {
-      if (socket && user?._id) {
-        console.log("sendMessage emit works", socket, user?._id);
+      if (props.socket && user?._id) {
+        console.log("sendMessage emit works", props.socket, user?._id);
         let receiverId = "";
-        if (user._id == "667efba8c6ef396531d0f6e2") {
-          receiverId = "667efbc4c6ef396531d0f6e5";
-        } else {
-          receiverId = "667efba8c6ef396531d0f6e2";
-        }
-        socket.emit("sendMessage", { message, receiverId });
+        // if (user._id == "667efba8c6ef396531d0f6e2") {
+        //   receiverId = "667efbc4c6ef396531d0f6e5";
+        // } else {
+        //   receiverId = "667efba8c6ef396531d0f6e2";
+        // }
+
+        receiverId = selectedUser?._id;
+        console.log("receiverId", receiverId);
+        props.socket.emit("sendMessage", { message, receiverId });
         setMessages((messages) => [
           ...messages,
           { sender: "user", message, time: new Date().toLocaleTimeString() },
         ]);
       }
 
-      // socket.emit("sendMessage", { name, message, to: "7E8-vLy-oQMwcAE3AAAQ" });
+      // props.socket.emit("sendMessage", { name, message, to: "7E8-vLy-oQMwcAE3AAAQ" });
       // setMessages((messages) => [
       //   ...messages,
       //   { sender: "user", message, time: new Date().toLocaleTimeString() },

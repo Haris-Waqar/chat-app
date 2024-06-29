@@ -3,7 +3,6 @@ const User = require("../models/user");
 // Fetch All Users From The Database
 
 const getUsers = async (req, res) => {
-  console.log("Fetching Users");
   try {
     const users = await User.find();
     return res.status(200).json({ users });
