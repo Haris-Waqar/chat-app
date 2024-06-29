@@ -1,13 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
-
+import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
 import { setUsers, setSelectedUser } from "@/store/slices/UserSlice.js";
-import { useAuth } from "@/contexts/AuthContext";
-
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
+import { useAuth } from "@/contexts/AuthContext";
 
 import axios from "axios";
 
@@ -48,6 +46,7 @@ export default function ChatUsers(props) {
         filteredUsers.map((userObj) => (
           <Box key={userObj._id} onClick={() => openChat(userObj)}>
             <Box
+              key={userObj._id}
               sx={{
                 display: "flex",
                 alignItems: "center",
