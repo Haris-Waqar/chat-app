@@ -134,6 +134,8 @@ export default function Sidebar() {
             }}
             onClick={() => {
               router.push("/login");
+              //   clear local storage
+              localStorage.clear();
             }}
           >
             <Image src="/logout.svg" width={30} height={42} alt="logout" />

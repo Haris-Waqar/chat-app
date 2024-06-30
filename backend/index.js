@@ -12,6 +12,7 @@ const app = express();
 
 // Middlewares
 app.use(cors()); // Cross-Origin Resource Sharing
+
 app.use(express.json()); // this use function that is available with express to parse json data. when we send data from client to server, we send data in json format so we need to parse it.
 
 // Initialized Database Configuration
@@ -40,11 +41,13 @@ io.on("connection", (socket) => {
 
   // listen to a connection
   socket.on("addNewUser", (userId) => {
-    console.log("UserId is", userId);
+    console.log("UserId is::", userId, "Socket ID is::", socket.id);
     // first check we don't have the user already
     const existingUser = onlineUsers.find((user) => user.userId === userId);
     if (existingUser) {
       console.log("User already exists");
+      //   assign the new socket id to the existing user
+      existingUser.socketId = socket.id;
       return;
     }
 
