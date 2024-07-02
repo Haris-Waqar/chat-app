@@ -86,7 +86,7 @@ export default function MessagingArea(props) {
     <>
       <Box
         sx={{
-          height: "calc(100% - 200px)",
+          height: "calc(100% - 210px)",
           overflowY: "scroll",
           p: 3,
           // hide scrollbar
