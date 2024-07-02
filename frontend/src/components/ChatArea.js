@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 
 import ChatHeader from "@/components/chatAreaComponents/ChatHeader.js";
 import MessagingArea from "@/components/chatAreaComponents/MessagingArea.js";
-import TextEditor from "@/components/chatAreaComponents/TextEditor.js";
 
 export default function ChatArea() {
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
@@ -40,7 +39,6 @@ export default function ChatArea() {
         <>
           <ChatHeader socket={socket} />
           <MessagingArea socket={socket} />
-          <TextEditor />
         </>
       )}
     </>

@@ -62,9 +62,11 @@ io.on("connection", (socket) => {
 
   // listen to a private message
   socket.on("sendMessage", (msgObj) => {
+    console.log(" message from client side", msgObj);
     const user = onlineUsers.find((user) => user.userId === msgObj.receiverId);
     if (user) {
       console.log(`Sending message to user with ID: ${msgObj.receiverId}`);
+      console.log("sending the msgOBj", msgObj);
       io.to(user.socketId).emit("getMessage", msgObj);
     }
     // socket.emit("message", {
