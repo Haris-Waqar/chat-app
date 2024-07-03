@@ -5,6 +5,7 @@ const { connectDb } = require("./config/database");
 const { readdirSync } = require("fs");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
+const Message = require("./models/Message");
 
 dotenv.config();
 
@@ -61,7 +62,7 @@ io.on("connection", (socket) => {
   });
 
   // listen to a private message
-  socket.on("sendMessage", (msgObj) => {
+  socket.on("sendMessage", async (msgObj) => {
     console.log(" message from client side", msgObj);
     const user = onlineUsers.find((user) => user.userId === msgObj.receiverId);
     if (user) {
@@ -69,6 +70,24 @@ io.on("connection", (socket) => {
       console.log("sending the msgOBj", msgObj);
       io.to(user.socketId).emit("getMessage", msgObj);
     }
+
+    // Save message to the database
+    const newMessage = new Message({
+      senderId: msgObj.senderId,
+      receiverId: msgObj.receiverId,
+      message: msgObj.updateMessage,
+      time: msgObj.time,
+    });
+
+    console.log("New Message ===>>>>>", newMessage);
+
+    try {
+      await newMessage.save();
+      console.log("Message saved to the database");
+    } catch (error) {
+      console.log("Error saving message to the database", error);
+    }
+
     // socket.emit("message", {
     //   sender: "bot",
     //   message: "Thank you. Please wait for a moment",

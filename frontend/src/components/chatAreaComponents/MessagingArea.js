@@ -60,14 +60,21 @@ export default function MessagingArea(props) {
         // }
 
         receiverId = selectedUser?._id;
+        const senderId = user?._id;
+        const time = new Date().toLocaleTimeString();
         console.log("receiverId", receiverId);
-        props.socket.emit("sendMessage", { updateMessage, receiverId });
+        props.socket.emit("sendMessage", {
+          updateMessage,
+          receiverId,
+          senderId,
+          time,
+        });
         setMessages((messages) => [
           ...messages,
           {
             sender: "user",
             updateMessage,
-            time: new Date().toLocaleTimeString(),
+            time: time,
           },
         ]);
       }
