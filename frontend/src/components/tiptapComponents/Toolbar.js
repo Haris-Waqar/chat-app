@@ -8,7 +8,7 @@ import {
   List,
   ListOrdered,
   Heading2,
-  Underline,
+  Underline as LucideUnderline,
   Quote,
   Undo,
   Redo,
@@ -54,7 +54,8 @@ export default function Toolbar({ editor, content }) {
         <button
           onClick={(e) => {
             e.preventDefault();
-            editor.chain().focus().toggleUnderline().run();
+            console.log("editor", editor);
+            editor?.chain().focus().toggleUnderline().run();
           }}
           className={
             editor.isActive("underline")
@@ -62,7 +63,7 @@ export default function Toolbar({ editor, content }) {
               : "text-sky-400"
           }
         >
-          <Underline className="w-5 h-5" />
+          <LucideUnderline className="w-5 h-5" />
         </button>
         <button
           onClick={(e) => {

@@ -6,6 +6,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
+import axios from "axios";
 
 import Tiptap from "@/components/Tiptap";
 
@@ -33,6 +34,39 @@ export default function MessagingArea(props) {
     });
     return () => props.socket?.off("getMessage");
   }, [props.socket]);
+
+  useEffect(() => {
+    // fetch the messages from the database
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/messages/${user?._id}/${selectedUser?._id}`
+        );
+        console.log("response", response.data);
+
+        // const reponseObj = {
+        //   _id: "66859392903e8e1f603bfa11",
+        //   senderId: "66804c449401f4989c877731",
+        //   receiverId: "66804bfe9401f4989c87772a",
+        //   message: "Helo jazib bhai",
+        //   time: "11:08:18 PM",
+        //   __v: 0,
+        // };
+        // convert the response to the format of the messages array
+        const messagesArray = response.data.map((msg) => {
+          return {
+            sender: msg.senderId === user?._id ? "user" : "bot",
+            updateMessage: msg.message,
+            time: msg.time,
+          };
+        });
+        setMessages(messagesArray);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    fetchMessages();
+  }, [selectedUser]);
 
   const handleSetMessage = (newContent) => {
     newContent = newContent.replace(/<[^>]*>?/gm, "");

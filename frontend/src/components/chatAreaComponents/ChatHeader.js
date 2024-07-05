@@ -70,9 +70,10 @@ export default function ChatHeader() {
                 sx={{
                   cursor: "pointer",
                 }}
+                key={index}
+                x
               >
                 <Image
-                  key={index}
                   src={menuItem.icon}
                   width={menuItem.icon == "/settingsIcon.svg" ? "5" : "20"}
                   height={20}
