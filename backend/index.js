@@ -59,6 +59,8 @@ io.on("connection", (socket) => {
       socketId: socket.id,
     });
     console.log("Online Users", onlineUsers);
+    // Emit online users
+    io.emit("getOnlineUsers", onlineUsers);
   });
 
   // listen to a private message
@@ -108,6 +110,8 @@ io.on("connection", (socket) => {
       onlineUsers.splice(index, 1);
     }
     console.log("Online Users", onlineUsers);
+    // Emit online users
+    io.emit("getOnlineUsers", onlineUsers);
   });
 });
 
