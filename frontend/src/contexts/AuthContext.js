@@ -7,6 +7,7 @@ const AuthContext = createContext();
 // Create a provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState({});
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
     // Load user data from localStorage on initial load
@@ -27,7 +28,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, onlineUsers, setOnlineUsers }}
+    >
       {children}
     </AuthContext.Provider>
   );

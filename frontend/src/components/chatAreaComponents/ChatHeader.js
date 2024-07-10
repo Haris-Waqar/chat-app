@@ -4,9 +4,11 @@ import { Box } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Image from "next/image";
 import Divider from "@mui/material/Divider";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ChatHeader() {
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
+  const { onlineUsers } = useAuth();
 
   const chatHeaderMenu = [
     {
@@ -48,9 +50,30 @@ export default function ChatHeader() {
             src="https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png"
           />
           <Box>
-            <Box>{selectedUser?.username}</Box>
-            <Box>
-              <span>Online -Last Seen, 2:02 pm</span>
+            <Box
+              sx={{
+                fontSize: "1.2rem",
+                fontWeight: "600",
+                textTransform: "capitalize",
+                color: "text.primary",
+              }}
+            >
+              {selectedUser?.username
+                ? selectedUser.username.charAt(0).toUpperCase() +
+                  selectedUser.username.slice(1).toLowerCase()
+                : ""}
+            </Box>
+
+            <Box
+              sx={{
+                fontSize: "0.8rem",
+                color: "text.secondary",
+                fontWeight: "500",
+              }}
+            >
+              {onlineUsers.some((user) => user.userId === selectedUser?._id)
+                ? "Online"
+                : "Offline"}
             </Box>
           </Box>
         </Box>

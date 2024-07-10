@@ -11,7 +11,7 @@ import MessagingArea from "@/components/chatAreaComponents/MessagingArea.js";
 export default function ChatArea() {
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
   const [socket, setSocket] = useState(null);
-  const { user } = useAuth();
+  const { user, setOnlineUsers } = useAuth();
 
   useEffect(() => {
     const newSocket = io("http://localhost:8000");
@@ -20,13 +20,18 @@ export default function ChatArea() {
   }, [user]);
 
   useEffect(() => {
-    // loop through all users and emit addNewUser to connect to the socket all users
     if (socket && user) {
       console.log("AddNewUser emit works");
-      //   users?.forEach((user) => {
-      //     socket.emit("addNewUser", user._id);
-      //   });
+
       socket.emit("addNewUser", user._id);
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("getOnlineUsers", (users) => {
+        setOnlineUsers(users);
+      });
     }
   }, [socket]);
 

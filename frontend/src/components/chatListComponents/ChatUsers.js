@@ -6,14 +6,12 @@ import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import { useAuth } from "@/contexts/AuthContext";
-
 import axios from "axios";
 
 export default function ChatUsers(props) {
   const users = useAppSelector((state) => state.user.users);
   const dispatch = useAppDispatch();
-  const { user } = useAuth();
-  console.log("socket status from chat user component ::", props.socket);
+  const { user, onlineUsers } = useAuth(); // Assuming onlineUsers state is available in useAuth()
 
   useEffect(() => {
     // fetch all users and set the state
@@ -35,10 +33,14 @@ export default function ChatUsers(props) {
     dispatch(setSelectedUser(user));
   };
 
-  //   Filter users to exclude the user
+  //   Filter users to exclude the current user
   const filteredUsers = users?.filter((userObj) => {
-    return userObj._id != user._id;
+    return userObj._id !== user._id;
   });
+
+  const isUserOnline = (userId) => {
+    return onlineUsers.some((user) => user.userId === userId);
+  };
 
   return (
     <>
@@ -58,6 +60,7 @@ export default function ChatUsers(props) {
                   cursor: "pointer",
                 },
                 mt: 1,
+                position: "relative",
               }}
             >
               {/* Avatar and Name */}
@@ -70,8 +73,33 @@ export default function ChatUsers(props) {
                 <Avatar
                   alt={userObj.username}
                   src={userObj.profilePicture}
-                  sx={{ width: 40, height: 40 }}
+                  sx={{ width: 40, height: 40, position: "relative" }} // Ensure relative positioning for the Avatar
                 />
+                {/* Green or Red Dot */}
+                {isUserOnline(userObj._id) ? (
+                  <span
+                    style={{
+                      color: "green",
+                      position: "absolute",
+                      left: "8px",
+                      top: "2px",
+                    }}
+                  >
+                    ●
+                  </span>
+                ) : (
+                  <span
+                    style={{
+                      color: "red",
+                      position: "absolute",
+                      left: "8px",
+                      top: "2px",
+                    }}
+                  >
+                    ●
+                  </span>
+                )}
+                {/* End of Green or Red Dot */}
                 <Box
                   sx={{
                     ml: 1,
