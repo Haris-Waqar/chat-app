@@ -7,6 +7,7 @@ import { useAppSelector } from "@/store/hooks.js";
 import axios from "axios";
 import Tiptap from "@/components/Tiptap";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Image from "next/image";
 
 export default function MessagingArea(props) {
   const [name, setName] = useState("");
@@ -142,6 +143,15 @@ export default function MessagingArea(props) {
                 >
                   {msg.updateMessage}
                 </Box>
+                {/* Add  doubleTicks using svg */}
+                {msg.sender === "user" && (
+                  <Image
+                    src="/grayTick.svg"
+                    width={30}
+                    height={42}
+                    alt="placeholder"
+                  />
+                )}
               </Stack>
               <Box
                 sx={{
