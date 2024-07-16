@@ -68,6 +68,7 @@ io.on("connection", (socket) => {
         status: "sent",
       });
       console.log("Undelivered Messages", undeliveredMessages);
+
       if (undeliveredMessages) {
         for (const msg of undeliveredMessages) {
           msg.status = "delivered";
@@ -75,10 +76,17 @@ io.on("connection", (socket) => {
           console.log("Message status updated to delivered", msg);
           console.log("Socket ID", socket.id);
 
-          io.to(socket.id).emit("messageDelivered", {
-            message_random_id: savedMessage.message_random_id,
-            status: "delivered",
-          });
+          // Find the sender's socket ID
+          const sender = onlineUsers.find(
+            (user) => user.userId === msg.senderId
+          );
+
+          if (sender) {
+            io.to(sender.socketId).emit("messageDelivered", {
+              message_random_id: msg.message_random_id,
+              status: "delivered",
+            });
+          }
         }
         console.log(
           "Undelivered messages updated to delivered",
