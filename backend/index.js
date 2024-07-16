@@ -35,13 +35,12 @@ app.get("/", (req, res) => {
 const server = createServer(app);
 const io = new Server(server);
 let onlineUsers = [];
-
 io.on("connection", (socket) => {
   socket.removeAllListeners();
   console.log(`User connected with Socket ID ${socket.id}`);
 
   // listen to a connection
-  socket.on("addNewUser", (userId) => {
+  socket.on("addNewUser", async (userId) => {
     console.log("UserId is::", userId, "Socket ID is::", socket.id);
     // first check we don't have the user already
     const existingUser = onlineUsers.find((user) => user.userId === userId);
@@ -61,46 +60,98 @@ io.on("connection", (socket) => {
     console.log("Online Users", onlineUsers);
     // Emit online users
     io.emit("getOnlineUsers", onlineUsers);
+
+    // Check for undelivered messages
+    try {
+      const undeliveredMessages = await Message.find({
+        receiverId: userId,
+        status: "sent",
+      });
+      console.log("Undelivered Messages", undeliveredMessages);
+      if (undeliveredMessages) {
+        for (const msg of undeliveredMessages) {
+          msg.status = "delivered";
+          await msg.save();
+          console.log("Message status updated to delivered", msg);
+          console.log("Socket ID", socket.id);
+
+          io.to(socket.id).emit("messageDelivered", {
+            message_random_id: savedMessage.message_random_id,
+            status: "delivered",
+          });
+        }
+        console.log(
+          "Undelivered messages updated to delivered",
+          undeliveredMessages
+        );
+      }
+    } catch (error) {
+      console.log("Error getting undelivered messages", error);
+    }
   });
 
   // listen to a private message
   socket.on("sendMessage", async (msgObj) => {
     console.log(" message from client side", msgObj);
-    const user = onlineUsers.find((user) => user.userId === msgObj.receiverId);
-    if (user) {
-      console.log(`Sending message to user with ID: ${msgObj.receiverId}`);
-      console.log("sending the msgOBj", msgObj);
-      io.to(user.socketId).emit("getMessage", msgObj);
-    }
-
+    console.log("Who is Online:::", onlineUsers);
+    let sender = onlineUsers.find((user) => user.userId === msgObj.senderId);
+    let user = onlineUsers.find((user) => user.userId === msgObj.receiverId);
     // Save message to the database
     const newMessage = new Message({
       senderId: msgObj.senderId,
       receiverId: msgObj.receiverId,
       message: msgObj.updateMessage,
       time: msgObj.time,
+      status: user ? "delivered" : "sent",
+      message_random_id: msgObj.message_random_id,
     });
 
     console.log("New Message ===>>>>>", newMessage);
 
     try {
-      await newMessage.save();
-      console.log("Message saved to the database");
+      const savedMessage = await newMessage.save();
+      console.log("Message saved to the database", savedMessage);
+
+      console.log("Is user online", user, "Is sender online", sender);
+      if (user) {
+        console.log("User is online");
+        console.log(`Sending message to user with ID: ${msgObj.receiverId}`);
+        console.log("sending the msgOBj", msgObj);
+        io.to(user.socketId).emit("getMessage", msgObj);
+        // Emit messageDelivered event to the sender
+        console.log("who is the user?", user);
+        io.to(sender.socketId).emit("messageDelivered", {
+          message_random_id: savedMessage.message_random_id,
+          status: "delivered",
+        });
+        console.log("Message Delivered", savedMessage.message_random_id);
+      }
     } catch (error) {
       console.log("Error saving message to the database", error);
     }
+  });
 
-    // socket.emit("message", {
-    //   sender: "bot",
-    //   message: "Thank you. Please wait for a moment",
-    //   time: new Date().toLocaleTimeString(),
-    // });
-    // let newMessage = msgObj.message;
-    // console.log(socket.id);
-    // socket.to(msgObj.to).emit("private message", {
-    //   newMessage,
-    //   from: socket.id,
-    // });
+  // Handling the message delivered
+  socket.on("messageDelivered", (msgObj) => {
+    // Update the message status to delivered in the database
+
+    //  check if the receiver is online then we will update the status to delivered
+    if (!user) {
+      console.log("User is not online");
+      return;
+    }
+
+    Message.updateOne(
+      { message_random_id: msgObj.message_random_id },
+      { status: "delivered" },
+      (err, result) => {
+        if (err) {
+          console.log("Error updating message status to delivered", err);
+          return;
+        }
+        console.log("Message status updated to delivered", result);
+      }
+    );
   });
 
   socket.on("disconnect", () => {
