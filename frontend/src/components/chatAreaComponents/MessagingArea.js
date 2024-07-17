@@ -9,6 +9,8 @@ import Tiptap from "@/components/Tiptap";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 export default function MessagingArea(props) {
   const [message, setMessage] = useState("");
@@ -47,6 +49,7 @@ export default function MessagingArea(props) {
           updateMessage: msg.message,
           time: msg.time,
           message_random_id: msg.message_random_id,
+          status: msg.status,
         }));
         setMessages(messagesArray);
       } catch (error) {
@@ -160,7 +163,7 @@ export default function MessagingArea(props) {
               spacing={1}
               mb={2}
             >
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1} alignItems="center">
                 <Box
                   component="p"
                   sx={{
@@ -179,10 +182,10 @@ export default function MessagingArea(props) {
                   {msg.updateMessage}
                 </Box>
                 {msg.sender === "user" && msg.status === "sent" && (
-                  <Chip label="Sent" size="small" />
+                  <DoneIcon sx={{ color: "gray", fontSize: 20 }} />
                 )}
                 {msg.sender === "user" && msg.status === "delivered" && (
-                  <Chip label="Delivered" size="small" />
+                  <DoneAllIcon sx={{ color: "gray", fontSize: 20 }} />
                 )}
               </Stack>
               <Box
