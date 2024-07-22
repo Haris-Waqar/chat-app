@@ -7,9 +7,12 @@ import { useAppSelector } from "@/store/hooks.js";
 import axios from "axios";
 import Tiptap from "@/components/Tiptap";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Image from "next/image";
+import { v4 as uuidv4 } from "uuid";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 export default function MessagingArea(props) {
-  const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [showNewMessageButton, setShowNewMessageButton] = useState(false);
@@ -17,17 +20,17 @@ export default function MessagingArea(props) {
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
   const messagesEndRef = useRef(null); // Reference to the end of messages for scrolling
 
-  console.log("socket status from messaging area ::", props.socket);
-
   // send message emit
   useEffect(() => {
     props.socket?.on("getMessage", (msgObj) => {
+      console.log("Get message:::", msgObj);
       setMessages((prevMessages) => [
         ...prevMessages,
         {
           sender: "bot",
           updateMessage: msgObj.updateMessage,
           time: new Date().toLocaleTimeString(),
+          message_random_id: msgObj.message_random_id,
         },
       ]);
       setShowNewMessageButton(true); // Show the new message button upon new message arrival
@@ -45,6 +48,8 @@ export default function MessagingArea(props) {
           sender: msg.senderId === user?._id ? "user" : "bot",
           updateMessage: msg.message,
           time: msg.time,
+          message_random_id: msg.message_random_id,
+          status: msg.status,
         }));
         setMessages(messagesArray);
       } catch (error) {
@@ -72,27 +77,61 @@ export default function MessagingArea(props) {
         let receiverId = selectedUser?._id;
         const senderId = user?._id;
         const time = new Date().toLocaleTimeString();
+        const message_random_id = uuidv4();
+        // Emit sendMessage event and handle response
         props.socket.emit("sendMessage", {
           updateMessage,
           receiverId,
           senderId,
           time,
+          message_random_id: message_random_id,
         });
-
         setMessages((prevMessages) => [
           ...prevMessages,
           {
             sender: "user",
             updateMessage,
             time,
+            message_random_id: message_random_id,
+            status: "sent",
           },
         ]);
       }
-      setName("");
       setMessage("");
       scrollToBottom(); // Scroll to the bottom after sending a new message
     }
   };
+  console.log("Messages---->>>>", messages);
+
+  useEffect(() => {
+    const handleDelivery = (msgObj) => {
+      console.log("Message delivered:", msgObj);
+      // Find the message in the messages array and update its status
+      if (messages && messages.length > 0) {
+        console.log("Messages before delivery update:", messages);
+      }
+      const updatedMessages = messages.map((msg) => {
+        if (msg.message_random_id === msgObj.message_random_id) {
+          return {
+            ...msg,
+            status: "delivered",
+          };
+        }
+        return msg;
+      });
+
+      setMessages(updatedMessages);
+      console.log("Messages after delivery update:", updatedMessages);
+    };
+
+    // Attach event listener when component mounts
+    props.socket?.on("messageDelivered", handleDelivery);
+
+    // Clean up: detach event listener when component unmounts
+    return () => {
+      props.socket?.off("messageDelivered", handleDelivery);
+    };
+  }, [messages, props.socket]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -124,7 +163,7 @@ export default function MessagingArea(props) {
               spacing={1}
               mb={2}
             >
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1} alignItems="center">
                 <Box
                   component="p"
                   sx={{
@@ -142,6 +181,12 @@ export default function MessagingArea(props) {
                 >
                   {msg.updateMessage}
                 </Box>
+                {msg.sender === "user" && msg.status === "sent" && (
+                  <DoneIcon sx={{ color: "gray", fontSize: 20 }} />
+                )}
+                {msg.sender === "user" && msg.status === "delivered" && (
+                  <DoneAllIcon sx={{ color: "gray", fontSize: 20 }} />
+                )}
               </Stack>
               <Box
                 sx={{

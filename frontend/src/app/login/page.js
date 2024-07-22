@@ -100,14 +100,13 @@ export default function Page() {
                   >
                     Password
                   </label>
-                  <div className="text-sm">
-                    <a
-                      href="#"
-                      className="font-semibold text-indigo-600 hover:text-indigo-500"
-                    >
-                      Forgot password?
-                    </a>
-                  </div>
+
+                  <a
+                    className="text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                    href="#"
+                  >
+                    Forgot password?
+                  </a>
                 </div>
                 <div className="mt-2">
                   <input

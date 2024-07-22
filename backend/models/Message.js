@@ -13,7 +13,16 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["sent", "delivered", "read"],
+    default: "sent",
+  },
   time: {
+    type: String,
+    required: true,
+  },
+  message_random_id: {
     type: String,
     required: true,
   },
