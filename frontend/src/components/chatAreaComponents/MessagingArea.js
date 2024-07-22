@@ -20,20 +20,70 @@ export default function MessagingArea(props) {
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
   const messagesEndRef = useRef(null); // Reference to the end of messages for scrolling
 
+  // Ref to keep track of the latest selectedUser state
+  const selectedUserRef = useRef(selectedUser);
+
+  useEffect(() => {
+    selectedUserRef.current = selectedUser;
+  }, [selectedUser]);
+
+  useEffect(() => {
+    if (selectedUser?._id && user?._id && props.socket) {
+      props.socket.emit("openChat", {
+        userId: user._id,
+        chatWithUserId: selectedUser._id,
+      });
+    }
+  }, [selectedUser, user, props.socket]);
+
+  useEffect(() => {
+    const handleRead = (msgObj) => {
+      console.log("Message delivered:", msgObj);
+      // Find the message in the messages array and update its status
+      if (messages && messages.length > 0) {
+        console.log("Messages before delivery update:", messages);
+      }
+      const updatedMessages = messages.map((msg) => {
+        if (msg.message_random_id === msgObj.message_random_id) {
+          return {
+            ...msg,
+            status: "read",
+          };
+        }
+        return msg;
+      });
+
+      setMessages(updatedMessages);
+      // console.log("Messages after delivery update:", updatedMessages);
+    };
+
+    props.socket?.on("messageRead", handleRead);
+
+    return () => {
+      props.socket?.off("messageRead", handleRead);
+    };
+  }, [messages, props.socket]);
+
   // send message emit
   useEffect(() => {
     props.socket?.on("getMessage", (msgObj) => {
-      console.log("Get message:::", msgObj);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          sender: "bot",
-          updateMessage: msgObj.updateMessage,
-          time: new Date().toLocaleTimeString(),
-          message_random_id: msgObj.message_random_id,
-        },
-      ]);
-      setShowNewMessageButton(true); // Show the new message button upon new message arrival
+      if (selectedUserRef.current._id === msgObj.senderId) {
+        console.log(selectedUserRef.current._id, msgObj.senderId);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            sender: "bot",
+            updateMessage: msgObj.updateMessage,
+            time: new Date().toLocaleTimeString(),
+            message_random_id: msgObj.message_random_id,
+          },
+        ]);
+        setShowNewMessageButton(true); // Show the new message button upon new message arrival
+        props.socket.emit("openChat", {
+          userId: user._id,
+          chatWithUserId: selectedUser._id,
+        });
+      }
     });
     return () => props.socket?.off("getMessage");
   }, [props.socket]);
@@ -186,6 +236,9 @@ export default function MessagingArea(props) {
                 )}
                 {msg.sender === "user" && msg.status === "delivered" && (
                   <DoneAllIcon sx={{ color: "gray", fontSize: 20 }} />
+                )}
+                {msg.sender === "user" && msg.status === "read" && (
+                  <DoneAllIcon sx={{ color: "green", fontSize: 20 }} />
                 )}
               </Stack>
               <Box
