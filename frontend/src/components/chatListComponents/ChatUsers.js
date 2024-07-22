@@ -12,6 +12,8 @@ export default function ChatUsers(props) {
   const users = useAppSelector((state) => state.user.users);
   const dispatch = useAppDispatch();
   const { user, onlineUsers } = useAuth(); // Assuming onlineUsers state is available in useAuth()
+  const [lastMessages, setLastMessages] = useState({});
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
     // fetch all users and set the state
@@ -26,17 +28,49 @@ export default function ChatUsers(props) {
       }
     };
     fetchUsers();
-  }, []); // The dependency array is empty to avoid re-fetching on every render
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Update filteredUsers after users are fetched
+    if (users) {
+      const filtered = users.filter((userObj) => userObj._id !== user._id);
+      setFilteredUsers(filtered);
+    }
+  }, [users, user._id]);
+
+  useEffect(() => {
+    // fetch last messages for each user
+    const fetchLastMessages = async () => {
+      try {
+        const promises = filteredUsers.map(async (userObj) => {
+          const res = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/lastMessage/${user._id}/${userObj._id}`
+          );
+          console.log({ userId: userObj._id, lastMessage: res.data });
+          return { userId: userObj._id, lastMessage: res.data };
+        });
+
+        const results = await Promise.all(promises);
+        const messages = results.reduce((acc, curr) => {
+          acc[curr.userId] = curr.lastMessage;
+          return acc;
+        }, {});
+
+        setLastMessages(messages);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (filteredUsers.length > 0) {
+      fetchLastMessages();
+    }
+  }, [filteredUsers, user._id]);
 
   const openChat = (user) => {
     // Open chat with the user
     dispatch(setSelectedUser(user));
   };
-
-  //   Filter users to exclude the current user
-  const filteredUsers = users?.filter((userObj) => {
-    return userObj._id !== user._id;
-  });
 
   const isUserOnline = (userId) => {
     return onlineUsers.some((user) => user.userId === userId);
@@ -79,25 +113,29 @@ export default function ChatUsers(props) {
                 {isUserOnline(userObj._id) ? (
                   <span
                     style={{
-                      color: "green",
                       position: "absolute",
-                      left: "8px",
-                      top: "2px",
+                      left: "38px",
+                      top: "9px",
+                      border: " 1.5px solid white",
+                      background: "green",
+                      borderRadius: "100%",
+                      height: "9px",
+                      width: "9px",
                     }}
-                  >
-                    ●
-                  </span>
+                  ></span>
                 ) : (
                   <span
                     style={{
-                      color: "red",
                       position: "absolute",
-                      left: "8px",
-                      top: "2px",
+                      left: "38px",
+                      top: "9px",
+                      border: " 1.5px solid white",
+                      background: "red",
+                      borderRadius: "100%",
+                      height: "9px",
+                      width: "9px",
                     }}
-                  >
-                    ●
-                  </span>
+                  ></span>
                 )}
                 {/* End of Green or Red Dot */}
                 <Box
@@ -108,6 +146,16 @@ export default function ChatUsers(props) {
                   }}
                 >
                   <h4>{userObj.username}</h4>
+                  <p
+                    style={{
+                      fontSize: "0.8rem",
+                      textTransform: "none",
+                      color: "gray",
+                      fontWeight: "400",
+                    }}
+                  >
+                    {lastMessages[userObj._id]?.message || "No messages yet"}
+                  </p>
                 </Box>
               </Box>
             </Box>
