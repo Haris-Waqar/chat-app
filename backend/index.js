@@ -33,7 +33,14 @@ app.get("/", (req, res) => {
 });
 
 const server = createServer(app);
-const io = new Server(server);
+// Apply CORS options to Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    methods: ["GET", "POST"], // Add other methods if needed
+    allowedHeaders: ["Content-Type", "Authorization"], // Add other headers if needed
+  },
+});
 let onlineUsers = [];
 
 io.on("connection", (socket) => {
