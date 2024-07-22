@@ -1,7 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
-import { setUsers, setSelectedUser } from "@/store/slices/UserSlice.js";
+import {
+  setUsers,
+  setSelectedUser,
+  setLastMessages,
+} from "@/store/slices/UserSlice.js";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
@@ -10,13 +14,12 @@ import axios from "axios";
 
 export default function ChatUsers(props) {
   const users = useAppSelector((state) => state.user.users);
+  const lastMessages = useAppSelector((state) => state.user.lastMessages);
   const dispatch = useAppDispatch();
-  const { user, onlineUsers } = useAuth(); // Assuming onlineUsers state is available in useAuth()
-  const [lastMessages, setLastMessages] = useState({});
+  const { user, onlineUsers } = useAuth();
   const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
-    // fetch all users and set the state
     const fetchUsers = async () => {
       try {
         const res = await axios.get(
@@ -31,7 +34,6 @@ export default function ChatUsers(props) {
   }, [dispatch]);
 
   useEffect(() => {
-    // Update filteredUsers after users are fetched
     if (users) {
       const filtered = users.filter((userObj) => userObj._id !== user._id);
       setFilteredUsers(filtered);
@@ -39,14 +41,12 @@ export default function ChatUsers(props) {
   }, [users, user._id]);
 
   useEffect(() => {
-    // fetch last messages for each user
     const fetchLastMessages = async () => {
       try {
         const promises = filteredUsers.map(async (userObj) => {
           const res = await axios.get(
             `${process.env.NEXT_PUBLIC_API_URL}/lastMessage/${user._id}/${userObj._id}`
           );
-          console.log({ userId: userObj._id, lastMessage: res.data });
           return { userId: userObj._id, lastMessage: res.data };
         });
 
@@ -56,7 +56,7 @@ export default function ChatUsers(props) {
           return acc;
         }, {});
 
-        setLastMessages(messages);
+        dispatch(setLastMessages(messages));
       } catch (error) {
         console.log(error);
       }
@@ -65,10 +65,9 @@ export default function ChatUsers(props) {
     if (filteredUsers.length > 0) {
       fetchLastMessages();
     }
-  }, [filteredUsers, user._id]);
+  }, [filteredUsers, user._id, dispatch]);
 
   const openChat = (user) => {
-    // Open chat with the user
     dispatch(setSelectedUser(user));
   };
 
@@ -97,7 +96,6 @@ export default function ChatUsers(props) {
                 position: "relative",
               }}
             >
-              {/* Avatar and Name */}
               <Box
                 sx={{
                   display: "flex",
@@ -107,9 +105,8 @@ export default function ChatUsers(props) {
                 <Avatar
                   alt={userObj.username}
                   src={userObj.profilePicture}
-                  sx={{ width: 40, height: 40, position: "relative" }} // Ensure relative positioning for the Avatar
+                  sx={{ width: 40, height: 40, position: "relative" }}
                 />
-                {/* Green or Red Dot */}
                 {isUserOnline(userObj._id) ? (
                   <span
                     style={{
@@ -137,7 +134,6 @@ export default function ChatUsers(props) {
                     }}
                   ></span>
                 )}
-                {/* End of Green or Red Dot */}
                 <Box
                   sx={{
                     ml: 1,
@@ -154,7 +150,9 @@ export default function ChatUsers(props) {
                       fontWeight: "400",
                     }}
                   >
-                    {lastMessages[userObj._id]?.message || "No messages yet"}
+                    {lastMessages[userObj._id]?.message ||
+                      lastMessages[userObj._id] ||
+                      "No messages yet"}
                   </p>
                 </Box>
               </Box>

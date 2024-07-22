@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAppSelector } from "@/store/hooks.js";
+import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
+import { updateLastMessage } from "@/store/slices/UserSlice.js";
 import axios from "axios";
 import Tiptap from "@/components/Tiptap";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -13,6 +14,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 export default function MessagingArea(props) {
+  const dispatch = useAppDispatch();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [showNewMessageButton, setShowNewMessageButton] = useState(false);
@@ -84,6 +86,13 @@ export default function MessagingArea(props) {
           chatWithUserId: selectedUser._id,
         });
       }
+      // Dispatch action to update last message in Redux store
+      dispatch(
+        updateLastMessage({
+          userId: msgObj.senderId,
+          lastMessage: msgObj.updateMessage,
+        })
+      );
     });
     return () => props.socket?.off("getMessage");
   }, [props.socket]);
@@ -146,6 +155,13 @@ export default function MessagingArea(props) {
             status: "sent",
           },
         ]);
+
+        dispatch(
+          updateLastMessage({
+            userId: receiverId,
+            lastMessage: updateMessage,
+          })
+        );
       }
       setMessage("");
       scrollToBottom(); // Scroll to the bottom after sending a new message
