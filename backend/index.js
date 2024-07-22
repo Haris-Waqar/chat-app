@@ -169,6 +169,40 @@ io.on("connection", (socket) => {
     );
   });
 
+  // Add a new event listener for opening a chat
+  socket.on("openChat", async ({ userId, chatWithUserId }) => {
+    try {
+      const messages = await Message.find({
+        senderId: chatWithUserId,
+        receiverId: userId,
+        status: { $in: ["sent", "delivered"] },
+      });
+
+      if (messages) {
+        for (const msg of messages) {
+          msg.status = "read";
+          await msg.save();
+          console.log("Message status updated to read", msg);
+
+          // Find the sender's socket ID
+          const sender = onlineUsers.find(
+            (user) => user.userId === chatWithUserId
+          );
+
+          if (sender) {
+            io.to(sender.socketId).emit("messageRead", {
+              message_random_id: msg.message_random_id,
+              status: "read",
+            });
+          }
+          console.log("Message Read Emit", msg);
+        }
+      }
+    } catch (error) {
+      console.log("Error updating message status to read", error);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log(`Socket ${socket.id} disconnected`);
     const index = onlineUsers.findIndex((user) => user.socketId === socket.id);
