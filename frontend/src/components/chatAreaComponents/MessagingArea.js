@@ -24,6 +24,8 @@ export default function MessagingArea(props) {
 
   // Ref to keep track of the latest selectedUser state
   const selectedUserRef = useRef(selectedUser);
+    // Ref to store the editor instance
+  const editorRef = useRef(null);
 
   useEffect(() => {
     selectedUserRef.current = selectedUser;
@@ -169,6 +171,9 @@ export default function MessagingArea(props) {
         );
       }
       setMessage("");
+      if (editorRef.current) {
+        editorRef.current.commands.clearContent();
+      }
       scrollToBottom(); // Scroll to the bottom after sending a new message
     }
   };
@@ -286,6 +291,7 @@ export default function MessagingArea(props) {
           <Tiptap
             content={message}
             onChange={(newContent) => handleSetMessage(newContent)}
+            setEditor={(editor) => (editorRef.current = editor)} // Get the editor instance
           />
         </form>
       </Box>

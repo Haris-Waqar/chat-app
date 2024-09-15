@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import Toolbar from "@/components/tiptapComponents/Toolbar.js";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-const Tiptap = ({ onChange, content }) => {
+const Tiptap = ({ onChange, content, setEditor }) => {
   const handleChange = (newContent) => {
     onChange(newContent);
   };
@@ -20,6 +21,13 @@ const Tiptap = ({ onChange, content }) => {
       handleChange(editor.getHTML());
     },
   });
+
+   // Pass the editor instance to the parent component
+   useEffect(() => {
+    if (editor) {
+      setEditor(editor);
+    }
+  }, [editor, setEditor]);
 
   return (
     <div className="w-full px-4">
