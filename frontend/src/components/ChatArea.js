@@ -14,7 +14,10 @@ export default function ChatArea() {
   const { user, setOnlineUsers } = useAuth();
 
   useEffect(() => {
-    const newSocket = io("https://chat-app-production-d90f.up.railway.app/");
+    const newSocket = io("https://chat-app-production-d90f.up.railway.app", {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+    });
     setSocket(newSocket);
     return () => newSocket.disconnect();
   }, [user]);
