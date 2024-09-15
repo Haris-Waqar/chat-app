@@ -125,6 +125,11 @@ export default function MessagingArea(props) {
 
   const handleSetMessage = (newContent) => {
     newContent = newContent.replace(/<[^>]*>?/gm, "");
+    console.log("New Content", newContent);
+    props.socket.emit("userTyping", {
+      userId: user._id,
+      chatWithUserId: selectedUser._id,
+    });
     setMessage(newContent);
   };
 
@@ -167,7 +172,7 @@ export default function MessagingArea(props) {
       scrollToBottom(); // Scroll to the bottom after sending a new message
     }
   };
-  console.log("Messages---->>>>", messages);
+  // console.log("Messages---->>>>", messages);
 
   useEffect(() => {
     const handleDelivery = (msgObj) => {

@@ -1,14 +1,38 @@
-"use client";
-import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
+import { useEffect, useState } from "react";
+import { useAppSelector } from "@/store/hooks.js";
 import { Box } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Image from "next/image";
 import Divider from "@mui/material/Divider";
 import { useAuth } from "@/contexts/AuthContext";
+import io from "socket.io-client";
+
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_IO_URL;
 
 export default function ChatHeader() {
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
   const { onlineUsers } = useAuth();
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    const socket = io(SOCKET_URL);
+
+    socket.on("connect", () => {
+      console.log(`Connected with socket ID: ${socket.id}`);
+    });
+
+    socket.on("userTyping", ({ userId, chatWithUserId }) => {
+      console.log("In heressssssssssss");
+      if (chatWithUserId === selectedUser?._id) {
+        setIsTyping(true);
+        setTimeout(() => setIsTyping(false), 2000); // Typing indicator disappears after 2 seconds
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [selectedUser?._id]);
 
   const chatHeaderMenu = [
     {
@@ -24,6 +48,7 @@ export default function ChatHeader() {
       name: "camera",
     },
   ];
+
   return (
     <>
       <Box
@@ -71,7 +96,9 @@ export default function ChatHeader() {
                 fontWeight: "500",
               }}
             >
-              {onlineUsers.some((user) => user.userId === selectedUser?._id)
+              {isTyping
+                ? "Typing..."
+                : onlineUsers.some((user) => user.userId === selectedUser?._id)
                 ? "Online"
                 : "Offline"}
             </Box>

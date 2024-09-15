@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image"; // Import the Next.js Image component
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,8 +31,6 @@ export default function Page() {
         payload
       );
       //   route to chat page
-      // console.log("Sign In Response", response);
-      // Extract user data from response
       const data = response.data.data;
       console.log("User Data", data);
       // Set user data using login function
@@ -57,13 +56,16 @@ export default function Page() {
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 ">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
+          {/* Use Next.js Image component for image optimization */}
+          <Image
             className="mx-auto h-10 w-auto"
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
             alt="Your Company"
+            width={40}
+            height={40}
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Log in in to your account
+            Log in to your account
           </h2>
         </div>
 
@@ -134,7 +136,7 @@ export default function Page() {
             </form>
 
             <p className="mt-10 text-center text-sm text-gray-500">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
                 href="/signup"
