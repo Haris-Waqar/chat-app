@@ -36,7 +36,7 @@ const server = createServer(app);
 // Apply CORS options to Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["https://chat-kq15idovf-haris-waqars-projects.vercel.app"],
     methods: ["GET", "POST"], // Add other methods if needed
     allowedHeaders: ["Content-Type", "Authorization"], // Add other headers if needed
   },
@@ -167,6 +167,18 @@ io.on("connection", (socket) => {
         console.log("Message status updated to delivered", result);
       }
     );
+  });
+
+  // Listen to the userTyping event
+  socket.on("userTyping", ({ userId, chatWithUserId }) => {
+    console.log(`User ${userId} is typing a message to user ${chatWithUserId}`);
+    const user = onlineUsers.find((user) => user.userId === chatWithUserId);
+    if (user) {
+      io.to(user.socketId).emit("senderTyping", {
+        userId: userId,
+        chatWithUserId: chatWithUserId,
+      });
+    }
   });
 
   // Add a new event listener for opening a chat
