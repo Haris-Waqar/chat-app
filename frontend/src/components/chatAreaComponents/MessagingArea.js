@@ -1,6 +1,5 @@
 import { Box, Button } from "@mui/material";
-import React, { useState, useEffect, useRef } from "react";
-import Chip from "@mui/material/Chip";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Stack from "@mui/material/Stack";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppSelector, useAppDispatch } from "@/store/hooks.js";
@@ -8,24 +7,22 @@ import { updateLastMessage } from "@/store/slices/UserSlice.js";
 import axios from "axios";
 import Tiptap from "@/components/Tiptap";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import Image from "next/image";
-import { v4 as uuidv4 } from "uuid";
 import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
+import { v4 as uuidv4 } from "uuid";
 
 export default function MessagingArea(props) {
   const dispatch = useAppDispatch();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [showNewMessageButton, setShowNewMessageButton] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true); // Track if the user is at the bottom
   const { user } = useAuth();
   const selectedUser = useAppSelector((state) => state.user.selectedUser);
   const messagesEndRef = useRef(null); // Reference to the end of messages for scrolling
-
-  // Ref to keep track of the latest selectedUser state
-  const selectedUserRef = useRef(selectedUser);
-    // Ref to store the editor instance
-  const editorRef = useRef(null);
+  const messagesContainerRef = useRef(null); // Reference to the messages container
+  const selectedUserRef = useRef(selectedUser); // Ref to keep track of the latest selectedUser state
+  const editorRef = useRef(null); // Ref to store the editor instance
 
   useEffect(() => {
     selectedUserRef.current = selectedUser;
@@ -42,37 +39,24 @@ export default function MessagingArea(props) {
 
   useEffect(() => {
     const handleRead = (msgObj) => {
-      console.log("Message delivered:", msgObj);
-      // Find the message in the messages array and update its status
-      if (messages && messages.length > 0) {
-        console.log("Messages before delivery update:", messages);
-      }
       const updatedMessages = messages.map((msg) => {
         if (msg.message_random_id === msgObj.message_random_id) {
-          return {
-            ...msg,
-            status: "read",
-          };
+          return { ...msg, status: "read" };
         }
         return msg;
       });
-
       setMessages(updatedMessages);
-      // console.log("Messages after delivery update:", updatedMessages);
     };
 
     props.socket?.on("messageRead", handleRead);
-
     return () => {
       props.socket?.off("messageRead", handleRead);
     };
   }, [messages, props.socket]);
 
-  // send message emit
   useEffect(() => {
     props.socket?.on("getMessage", (msgObj) => {
       if (selectedUserRef.current._id === msgObj.senderId) {
-        console.log(selectedUserRef.current._id, msgObj.senderId);
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -82,13 +66,12 @@ export default function MessagingArea(props) {
             message_random_id: msgObj.message_random_id,
           },
         ]);
-        setShowNewMessageButton(true); // Show the new message button upon new message arrival
+        setShowNewMessageButton(true);
         props.socket.emit("openChat", {
           userId: user._id,
           chatWithUserId: selectedUser._id,
         });
       }
-      // Dispatch action to update last message in Redux store
       dispatch(
         updateLastMessage({
           userId: msgObj.senderId,
@@ -121,13 +104,14 @@ export default function MessagingArea(props) {
   }, [selectedUser]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, []);
-  // Scroll to bottom whenever messages change
+    // Scroll to the bottom whenever messages change and user is at the bottom
+    if (isAtBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isAtBottom]);
 
   const handleSetMessage = (newContent) => {
     newContent = newContent.replace(/<[^>]*>?/gm, "");
-    console.log("New Content", newContent);
     props.socket.emit("userTyping", {
       userId: user._id,
       chatWithUserId: selectedUser._id,
@@ -144,7 +128,6 @@ export default function MessagingArea(props) {
         const senderId = user?._id;
         const time = new Date().toLocaleTimeString();
         const message_random_id = uuidv4();
-        // Emit sendMessage event and handle response
         props.socket.emit("sendMessage", {
           updateMessage,
           receiverId,
@@ -158,11 +141,10 @@ export default function MessagingArea(props) {
             sender: "user",
             updateMessage,
             time,
-            message_random_id: message_random_id,
+            message_random_id,
             status: "sent",
           },
         ]);
-
         dispatch(
           updateLastMessage({
             userId: receiverId,
@@ -174,48 +156,42 @@ export default function MessagingArea(props) {
       if (editorRef.current) {
         editorRef.current.commands.clearContent();
       }
-      scrollToBottom(); // Scroll to the bottom after sending a new message
     }
   };
-  // console.log("Messages---->>>>", messages);
 
   useEffect(() => {
     const handleDelivery = (msgObj) => {
-      console.log("Message delivered:", msgObj);
-      // Find the message in the messages array and update its status
-      if (messages && messages.length > 0) {
-        console.log("Messages before delivery update:", messages);
-      }
       const updatedMessages = messages.map((msg) => {
         if (msg.message_random_id === msgObj.message_random_id) {
-          return {
-            ...msg,
-            status: "delivered",
-          };
+          return { ...msg, status: "delivered" };
         }
         return msg;
       });
-
       setMessages(updatedMessages);
-      console.log("Messages after delivery update:", updatedMessages);
     };
 
-    // Attach event listener when component mounts
     props.socket?.on("messageDelivered", handleDelivery);
-
-    // Clean up: detach event listener when component unmounts
     return () => {
       props.socket?.off("messageDelivered", handleDelivery);
     };
   }, [messages, props.socket]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const handleScroll = () => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      setIsAtBottom(
+        container.scrollHeight - container.scrollTop === container.clientHeight
+      );
+    }
   };
 
   const handleNewMessageClick = () => {
+    setShowNewMessageButton(false);
     scrollToBottom(); // Scroll to the bottom when clicking on "New Message" button
-    setShowNewMessageButton(false); // Hide the button after clicking
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -229,6 +205,8 @@ export default function MessagingArea(props) {
             display: "none",
           },
         }}
+        ref={messagesContainerRef}
+        onScroll={handleScroll} // Handle scroll events
       >
         {messages &&
           messages.map((msg, index) => (
