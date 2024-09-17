@@ -7,9 +7,9 @@ const {
 } = require("../controllers/messagingController");
 
 // Get messages between two users
-router.get("/messages/:userId/:contactId", isAuthenticated, getMessages);
+router.get("/messages/:userId/:contactId", getMessages);
 
 // Get last message between two users
-router.get("/lastMessage/:userId/:contactId", isAuthenticated, getLastMessage);
+router.get("/lastMessage/:userId/:contactId", getLastMessage);
 
 module.exports = router;
