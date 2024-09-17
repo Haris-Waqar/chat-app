@@ -31,9 +31,11 @@ export default function Page() {
         payload
       );
       //   route to chat page
-      const data = response.data;
+      const data = response.data.data;
       console.log("User Data", data);
       // Set user data using login function
+      localStorage.setItem("token", JSON.stringify(response.data.token)); // Save user data to localStorage
+
       login(data);
 
       router.push("/dashboard");
