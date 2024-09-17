@@ -22,8 +22,14 @@ export default function ChatUsers(props) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        const token = localStorage.getItem("token"); // Get token from localStorage
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/getAllUsers`
+          `${process.env.NEXT_PUBLIC_API_URL}/getAllUsers`,
+          {
+            headers: {
+              Authorization: token, // Set the Authorization header
+            },
+          }
         );
         dispatch(setUsers(res.data.users));
       } catch (error) {
@@ -43,9 +49,15 @@ export default function ChatUsers(props) {
   useEffect(() => {
     const fetchLastMessages = async () => {
       try {
+        const token = localStorage.getItem("token"); // Get token from localStorage
         const promises = filteredUsers.map(async (userObj) => {
           const res = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/lastMessage/${user._id}/${userObj._id}`
+            `${process.env.NEXT_PUBLIC_API_URL}/lastMessage/${user._id}/${userObj._id}`,
+            {
+              headers: {
+                Authorization: token, // Set the Authorization header
+              },
+            }
           );
           return { userId: userObj._id, lastMessage: res.data };
         });

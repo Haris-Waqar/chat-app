@@ -31,7 +31,7 @@ export default function Page() {
         payload
       );
       //   route to chat page
-      const data = response.data.data;
+      const data = response.data;
       console.log("User Data", data);
       // Set user data using login function
       login(data);

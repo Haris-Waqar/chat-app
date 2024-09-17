@@ -19,7 +19,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData)); // Save user data to localStorage
+    localStorage.setItem("user", JSON.stringify(userData.data)); // Save user data to localStorage
+    localStorage.setItem("token", JSON.stringify(userData.token)); // Save user data to localStorage
+
     console.log("Inside login method", userData); // Log userData to confirm it's being set
   };
 
