@@ -43,6 +43,9 @@ export default function ChatUsers(props) {
     if (users) {
       const filtered = users.filter((userObj) => userObj._id !== user._id);
       setFilteredUsers(filtered);
+      if (filteredUsers.length) {
+        openChat(filteredUsers[0]);
+      }
     }
   }, [users, user._id]);
 
